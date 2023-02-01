@@ -1,270 +1,241 @@
-// creating an array and passing the number, questions, options, and answers
-let questions = [
+// variables for page elements
+// time and score
+let timeEl = document.querySelector("p.time");
+let secondsLeft = 75;
+let scoreEl = document.querySelector("#score");
+
+// sections
+// section intro
+const introEl = document.querySelector("#intro");
+
+// section questions
+//question section
+const questionsEl = document.querySelector("#questions");
+//where question goes
+let questionEl = document.querySelector("#question");
+// how many questions they have answered
+let questionCount = 0;
+// div yaynay
+const yaynayEl = document.querySelector("#yaynay");
+
+// section final
+const finalEl = document.querySelector("#final");
+// user initials
+let initialsInput = document.querySelector("#initials");
+
+// section highscores
+const highscoresEl = document.querySelector("#highscores");
+// ordered list
+let scoreListEl = document.querySelector("#score-list");
+// array of scores
+let scoreList = [];
+
+// buttons
+// start
+const startBtn = document.querySelector("#start");
+// answer button class
+const ansBtn = document.querySelectorAll("button.ansBtn")
+// answer1
+const ans1Btn = document.querySelector("#answer1");
+// answer2
+const ans2Btn = document.querySelector("#answer2");
+// answer3
+const ans3Btn = document.querySelector("#answer3");
+// answer4
+const ans4Btn = document.querySelector("#answer4");
+// submit-score
+const submitScrBtn = document.querySelector("#submit-score");
+// goback
+const goBackBtn = document.querySelector("#goback");
+// clearscores
+const clearScrBtn = document.querySelector("#clearscores");
+// view-scores
+const viewScrBtn = document.querySelector("#view-scores");
+
+// Object for question, answer, true/false
+const questions = [ // array of objects
     {
-    numb: 1,
-    question: "What does HTML stand for?",
-    answer: "Hyper Text Markup Language",
-    options: [
-      "Hyper Text Preprocessor",
-      "Hyper Text Markup Language",
-      "Hyper Text Multiple Language",
-      "Hyper Tool Multi Language"
-    ]
-  },
+        // question 0
+        question: "Commonly used data types do NOT include:",
+        answers: ["1. strings", "2. booleans", "3. alerts", "4. numbers"],
+        correctAnswer: "2"
+    },
     {
-    numb: 2,
-    question: "What does CSS stand for?",
-    answer: "Cascading Style Sheet",
-    options: [
-      "Common Style Sheet",
-      "Colorful Style Sheet",
-      "Computer Style Sheet",
-      "Cascading Style Sheet"
-    ]
-  },
+        // question 1
+        question: "The condition in an if / else statement is enclosed within ____.",
+        answers: ["1. quotes", "2. curly brackets", "3. parentheses", "4. square brackets"],
+        correctAnswer: "1"
+    },
     {
-    numb: 3,
-    question: "What does PHP stand for?",
-    answer: "Hypertext Preprocessor",
-    options: [
-      "Hypertext Preprocessor",
-      "Hypertext Programming",
-      "Hypertext Preprogramming",
-      "Hometext Preprocessor"
-    ]
-  },
+        // question 2
+        question: "Arrays in Javascript can be used to store ____.",
+        answers: ["1. numbers and strings", "2. other arrays", "3. booleans", "4. all of the above"],
+        correctAnswer: "3"
+    },
     {
-    numb: 4,
-    question: "What does SQL stand for?",
-    answer: "Structured Query Language",
-    options: [
-      "Stylish Question Language",
-      "Stylesheet Query Language",
-      "Statement Question Language",
-      "Structured Query Language"
-    ]
-  },
+        // question 3
+        question: "String values must be enclosed within ____ when being assigned to variables.",
+        answers: ["1. commmas", "2. curly brackets", "3. quotes", "4. parentheses"],
+        correctAnswer: "2"
+    },
     {
-    numb: 5,
-    question: "What does XML stand for?",
-    answer: "eXtensible Markup Language",
-    options: [
-      "eXtensible Markup Language",
-      "eXecutable Multiple Language",
-      "eXTra Multi-Program Language",
-      "eXamine Multiple Language"
-    ]
-  },
+        // question 4
+        question: "A very useful tool used during development and debugging for printing content to the debugger is:",
+        answers: ["1. Javascript", "2. terminal/bash", "3. for loops", "4. console.log"],
+        correctAnswer: "3"
+    }
 ];
-//selecting all required elements
-const start_btn = document.querySelector(".start_btn button");
-const info_box = document.querySelector(".info_box");
-const exit_btn = info_box.querySelector(".buttons .quit");
-const continue_btn = info_box.querySelector(".buttons .restart");
-const quiz_box = document.querySelector(".quiz_box");
-const result_box = document.querySelector(".result_box");
-const option_list = document.querySelector(".option_list");
-const time_line = document.querySelector("header .time_line");
-const timeText = document.querySelector(".timer .time_left_txt");
-const timeCount = document.querySelector(".timer .timer_sec");
 
-// if startQuiz button clicked
-start_btn.onclick = ()=>{
-    info_box.classList.add("activeInfo"); //show info box
+
+// Functions
+
+// timer
+function setTime() {
+    let timerInterval = setInterval(function () {
+        secondsLeft--;
+        timeEl.textContent = `Time:${secondsLeft}s`;
+
+        if (secondsLeft === 0 || questionCount === questions.length) {
+            clearInterval(timerInterval);
+            questionsEl.style.display = "none";
+            finalEl.style.display = "block";
+            scoreEl.textContent = secondsLeft;
+        }
+    }, 1000);
 }
 
-// if exitQuiz button clicked
-exit_btn.onclick = ()=>{
-    info_box.classList.remove("activeInfo"); //hide info box
+// start quiz with timer and set up questions
+function startQuiz() {
+    introEl.style.display = "none";
+    questionsEl.style.display = "block";
+    questionCount = 0;
+
+    setTime();
+    setQuestion(questionCount);
 }
 
-// if continueQuiz button clicked
-continue_btn.onclick = ()=>{
-    info_box.classList.remove("activeInfo"); 
-    quiz_box.classList.add("activeQuiz"); 
-    showQuetions(0); 
-    queCounter(1); 
-    startTimer(15); 
-    startTimerLine(0); 
-}
-
-let timeValue =  20;
-let que_count = 0;
-let que_numb = 1;
-let userScore = 0;
-let widthValue = 0;
-let counter;
-let counterLine;
-
-
-const restart_quiz = result_box.querySelector(".buttons .restart");
-const quit_quiz = result_box.querySelector(".buttons .quit");
-
-// if restartQuiz button clicked
-restart_quiz.onclick = ()=>{
-    quiz_box.classList.add("activeQuiz"); 
-    result_box.classList.remove("activeResult"); 
-    timeValue = 15; 
-    que_count = 0;
-    que_numb = 1;
-    userScore = 0;
-    widthValue = 0;
-    showQuetions(que_count); 
-    queCounter(que_numb); 
-    clearInterval(counter); 
-    clearInterval(counterLine); 
-    startTimer(timeValue); 
-    startTimerLine(widthValue); 
-    timeText.textContent = "Time Left"; 
-    next_btn.classList.remove("show"); 
-}
-
-// if quitQuiz button clicked
-quit_quiz.onclick = ()=>{
-    window.location.reload(); 
-}
-
-const next_btn = document.querySelector("footer .next_btn");
-const bottom_ques_counter = document.querySelector("footer .total_que");
-
-// if Next Que button clicked
-next_btn.onclick = ()=>{
-    if(que_count < questions.length - 1){ 
-        que_count++; 
-        que_numb++; 
-        showQuetions(que_count); 
-        queCounter(que_numb); 
-        clearInterval(counter); 
-        clearInterval(counterLine); 
-        startTimer(timeValue); 
-        startTimerLine(widthValue); 
-        timeText.textContent = "Time Left"; 
-        next_btn.classList.remove("show"); 
-    }else{
-        clearInterval(counter); 
-        clearInterval(counterLine); 
-        showResult(); 
+// function to set question; takes in a count and displays the next question/answers
+function setQuestion(id) {
+    if (id < questions.length) {
+        questionEl.textContent = questions[id].question;
+        ans1Btn.textContent = questions[id].answers[0];
+        ans2Btn.textContent = questions[id].answers[1];
+        ans3Btn.textContent = questions[id].answers[2];
+        ans4Btn.textContent = questions[id].answers[3];
     }
 }
 
-// getting questions and options from array
-function showQuetions(index){
-    const que_text = document.querySelector(".que_text");
+// function to check answer and then move to next question
+function checkAnswer(event) {
+    event.preventDefault();
 
-    //creating a new span and div tag for question and option and passing the value using array index
-    let que_tag = '<span>'+ questions[index].numb + ". " + questions[index].question +'</span>';
-    let option_tag = '<div class="option"><span>'+ questions[index].options[0] +'</span></div>'
-    + '<div class="option"><span>'+ questions[index].options[1] +'</span></div>'
-    + '<div class="option"><span>'+ questions[index].options[2] +'</span></div>'
-    + '<div class="option"><span>'+ questions[index].options[3] +'</span></div>';
-    que_text.innerHTML = que_tag; 
-    option_list.innerHTML = option_tag; 
+    // show section for yaynay and append message
+    yaynayEl.style.display = "block";
+    let p = document.createElement("p");
+    yaynayEl.appendChild(p);
+
+    // time out after 1 second
+    setTimeout(function () {
+        p.style.display = 'none';
+    }, 1000);
+
+    // answer checker
+    if (questions[questionCount].correctAnswer === event.target.value) {
+        p.textContent = "Correct!";
+    } else if (questions[questionCount].correctAnswer !== event.target.value) {
+        secondsLeft = secondsLeft - 5;
+        p.textContent = "Wrong!";
+    }
+
+    // increment so the questions index is increased
+    if (questionCount < questions.length) {
+        questionCount++;
+    }
+    // call setQuestion to bring in next question when any ansBtn is clicked
+    setQuestion(questionCount);
+}
+
+function addScore(event) {
+    event.preventDefault();
+
+    finalEl.style.display = "none";
+    highscoresEl.style.display = "block";
+
+    let init = initialsInput.value.toUpperCase();
+    scoreList.push({ initials: init, score: secondsLeft });
+
+    // sort scores
+    scoreList = scoreList.sort((a, b) => {
+        if (a.score < b.score) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
     
-    const option = option_list.querySelectorAll(".option");
-
-    // set onclick attribute to all available options
-    for(i=0; i < option.length; i++){
-        option[i].setAttribute("onclick", "optionSelected(this)");
+    scoreListEl.innerHTML="";
+    for (let i = 0; i < scoreList.length; i++) {
+        let li = document.createElement("li");
+        li.textContent = `${scoreList[i].initials}: ${scoreList[i].score}`;
+        scoreListEl.append(li);
     }
-}
-// creating the new div tags which for icons
-let tickIconTag = '<div class="icon tick"><i class="fas fa-check"></i></div>';
-let crossIconTag = '<div class="icon cross"><i class="fas fa-times"></i></div>';
 
-//if user clicked on option
-function optionSelected(answer){
-    clearInterval(counter); 
-    clearInterval(counterLine);
-    let userAns = answer.textContent; 
-    let correcAns = questions[que_count].answer; 
-    const allOptions = option_list.children.length; 
-    
-    if(userAns == correcAns){
-        userScore += 1;
-        answer.classList.add("correct"); 
-        answer.insertAdjacentHTML("beforeend", tickIconTag); 
-        console.log("Correct Answer");
-        console.log("Your correct answers = " + userScore);
-    }else{
-        answer.classList.add("incorrect"); 
-        answer.insertAdjacentHTML("beforeend", crossIconTag); 
-        console.log("Wrong Answer");
-
-        for(i=0; i < allOptions; i++){
-            if(option_list.children[i].textContent == correcAns){ 
-                option_list.children[i].setAttribute("class", "option correct"); 
-                option_list.children[i].insertAdjacentHTML("beforeend", tickIconTag); 
-                console.log("Auto selected correct answer.");
-            }
-        }
-    }
-    for(i=0; i < allOptions; i++){
-        option_list.children[i].classList.add("disabled");
-    }
-    next_btn.classList.add("show"); 
+    // Add to local storage
+    storeScores();
+    displayScores();
 }
 
-function showResult(){
-    info_box.classList.remove("activeInfo"); 
-    quiz_box.classList.remove("activeQuiz"); 
-    result_box.classList.add("activeResult"); 
-    const scoreText = result_box.querySelector(".score_text");
-    if (userScore > 3){ 
-        let scoreTag = '<span>and congrats! , You got <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
-        scoreText.innerHTML = scoreTag;  
-    }
-    else if(userScore > 1){ 
-        let scoreTag = '<span>and nice , You got <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
-        scoreText.innerHTML = scoreTag;
-    }
-    else{ 
-        let scoreTag = '<span>and sorry , You got only <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
-        scoreText.innerHTML = scoreTag;
+function storeScores() {
+    localStorage.setItem("scoreList", JSON.stringify(scoreList));
+}
+
+function displayScores() {
+    // Get stored scores from localStorage
+    // Parsing the JSON string to an object
+    let storedScoreList = JSON.parse(localStorage.getItem("scoreList"));
+
+    // If scores were retrieved from localStorage, update the scorelist array to it
+    if (storedScoreList !== null) {
+        scoreList = storedScoreList;
     }
 }
 
-function startTimer(time){
-    counter = setInterval(timer, 1000);
-    function timer(){
-        timeCount.textContent = time; 
-        time--; 
-        if(time < 9){ 
-            let addZero = timeCount.textContent; 
-            timeCount.textContent = "0" + addZero; 
-        }
-        if(time < 0){ 
-            clearInterval(counter); 
-            timeText.textContent = "Time Off"; 
-            const allOptions = option_list.children.length; 
-            let correcAns = questions[que_count].answer; 
-            for(i=0; i < allOptions; i++){
-                if(option_list.children[i].textContent == correcAns){ 
-                    option_list.children[i].setAttribute("class", "option correct"); 
-                    option_list.children[i].insertAdjacentHTML("beforeend", tickIconTag); 
-                    console.log("Time Off: Auto selected correct answer.");
-                }
-            }
-            for(i=0; i < allOptions; i++){
-                option_list.children[i].classList.add("disabled"); 
-            }
-            next_btn.classList.add("show"); 
-        }
-    }
+// clear scores
+function clearScores() {
+    localStorage.clear();
+    scoreListEl.innerHTML="";
 }
 
-function startTimerLine(time){
-    counterLine = setInterval(timer, 29);
-    function timer(){
-        time += 1; 
-        time_line.style.width = time + "px"; 
-        if(time > 549){ 
-            clearInterval(counterLine); 
-        }
-    }
-}
+// EventListeners
+// Start timer and display first question when click start quiz
+startBtn.addEventListener("click", startQuiz);
 
-function queCounter(index){
-    //creating a new span tag and passing the question number and total question
-    let totalQueCounTag = '<span><p>'+ index +'</p> of <p>'+ questions.length +'</p> Questions</span>';
-    bottom_ques_counter.innerHTML = totalQueCounTag; 
-}
+// Check answers loop
+ansBtn.forEach(item => {
+    item.addEventListener('click', checkAnswer);
+});
+
+// Add score
+submitScrBtn.addEventListener("click", addScore);
+
+// Go Back Button
+goBackBtn.addEventListener("click", function () {
+    highscoresEl.style.display = "none";
+    introEl.style.display = "block";
+    secondsLeft = 75;
+    timeEl.textContent = `Time:${secondsLeft}s`;
+});
+
+// Clear the scores
+clearScrBtn.addEventListener("click", clearScores);
+
+// View/Hide High Scores Button
+viewScrBtn.addEventListener("click", function () {
+    if (highscoresEl.style.display === "none") {
+        highscoresEl.style.display = "block";
+    } else if (highscoresEl.style.display === "block") {
+        highscoresEl.style.display = "none";
+    } else {
+        return alert("No scores to show.");
+    }
+});
